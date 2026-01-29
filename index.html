@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Commandes Etsy/AliExpress</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- En-tête -->
+        <header>
+            <h1>📦 Suivi Commandes</h1>
+            <div id="sync-status" class="sync-status">●</div>
+        </header>
+
+        <!-- Navigation par onglets -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="settings">⚙️ Paramètres</button>
+            <button class="tab-btn" data-tab="add">➕ Ajouter</button>
+            <button class="tab-btn" data-tab="orders">📋 Commandes</button>
+            <button class="tab-btn" data-tab="stats">📊 Statistiques</button>
+        </nav>
+
+        <!-- Contenu des onglets -->
+        <main>
+            <!-- ONGLET PARAMÈTRES -->
+            <section id="settings" class="tab-content active">
+                <h2>Paramètres</h2>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label>Nom boutique Etsy</label>
+                        <input type="text" id="etsy-shop" placeholder="Ma Boutique Etsy">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom boutique AliExpress</label>
+                        <input type="text" id="ali-shop" placeholder="Mon Compte AliExpress">
+                    </div>
+                    <div class="form-group">
+                        <label>Devise</label>
+                        <select id="currency">
+                            <option value="EUR">EUR (€)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="GBP">GBP (£)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Marge cible (%)</label>
+                        <input type="number" id="target-margin" placeholder="30" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>URL de l'API Google Sheets</label>
+                        <input type="url" id="api-url" placeholder="https://script.google.com/macros/s/...">
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                </form>
+            </section>
+
+            <!-- ONGLET AJOUTER COMMANDE -->
+            <section id="add" class="tab-content">
+                <h2>Ajouter une commande</h2>
+                <form id="order-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date d'achat client *</label>
+                            <input type="date" id="date-client" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date d'achat AliExpress *</label>
+                            <input type="date" id="date-ali" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date livraison estimée</label>
+                            <input type="date" id="date-estimate">
+                        </div>
+                        <div class="form-group">
+                            <label>Date livraison réelle</label>
+                            <input type="date" id="date-delivered">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Type de produit *</label>
+                        <input type="text" id="product-type" placeholder="Ex: Bracelet, Collier..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lien AliExpress</label>
+                        <input type="url" id="ali-link" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nom du client *</label>
+                        <input type="text" id="customer-name" placeholder="Jean Dupont" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Adresse du client</label>
+                        <textarea id="customer-address" rows="2" placeholder="123 rue de la Paix"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pays *</label>
+                        <input type="text" id="country" placeholder="France" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prix de vente Etsy *</label>
+                            <input type="number" id="sale-price" step="0.01" placeholder="29.99" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Prix d'achat AliExpress *</label>
+                            <input type="number" id="cost-price" step="0.01" placeholder="9.99" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Statut de livraison *</label>
+                        <select id="status" required>
+                            <option value="en_cours">En cours</option>
+                            <option value="livre">Livré</option>
+                            <option value="probleme">Problème</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes personnelles</label>
+                        <textarea id="notes" rows="3" placeholder="Remarques, problèmes, etc."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">➕ Ajouter la commande</button>
+                </form>
+            </section>
+
+            <!-- ONGLET COMMANDES -->
+            <section id="orders" class="tab-content">
+                <h2>Liste des commandes</h2>
+                
+                <div class="filters">
+                    <input type="text" id="search" placeholder="🔍 Rechercher...">
+                    <select id="status-filter">
+                        <option value="">Tous les statuts</option>
+                        <option value="en_cours">En cours</option>
+                        <option value="livre">Livré</option>
+                        <option value="probleme">Problème</option>
+                    </select>
+                    <button class="btn btn-secondary" id="refresh-orders">🔄 Actualiser</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Client</th>
+                                <th>Produit</th>
+                                <th>Pays</th>
+                                <th>Vente</th>
+                                <th>Achat</th>
+                                <th>Bénéfice</th>
+                                <th>Marge %</th>
+                                <th>Statut</th>
+                                <th>Délai</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-tbody">
+                            <tr>
+                                <td colspan="10" class="loading">Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ONGLET STATISTIQUES -->
+            <section id="stats" class="tab-content">
+                <h2>Statistiques</h2>
+                <button class="btn btn-secondary" id="refresh-stats">🔄 Actualiser</button>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>💰 Chiffre d'affaires</h3>
+                        <p class="stat-value" id="stat-revenue">0 €</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>✅ Bénéfice total</h3>
+                        <p class="stat-value" id="stat-profit">0 €</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>📦 Nombre de commandes</h3>
+                        <p class="stat-value" id="stat-orders">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>📈 Marge moyenne</h3>
+                        <p class="stat-value" id="stat-margin">0%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🏆 Produit le plus vendu</h3>
+                        <p class="stat-value" id="stat-top-product">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>💎 Produit le plus rentable</h3>
+                        <p class="stat-value" id="stat-best-margin">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🌍 Pays principal</h3>
+                        <p class="stat-value" id="stat-top-country">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>⏱️ Délai moyen</h3>
+                        <p class="stat-value" id="stat-avg-delay">- jours</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
